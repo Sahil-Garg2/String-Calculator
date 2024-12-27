@@ -8,11 +8,18 @@ function add(numbers) {
     numbers = parts.slice(1).join("\n");
   }
 
-  return numbers
+   const numArray = numbers
     .replace(new RegExp(`\\${delimiter}`, "g"), ",")
     .replace(/\n/g, ",")
     .split(",")
-    .reduce((sum, num) => sum + parseInt(num), 0);
+    .map((num) => parseInt(num));
+
+  const negatives = numArray.filter((num) => num < 0);
+  if (negatives.length > 0) {
+    throw new Error(`Negative numbers not allowed: ${negatives.join(",")}`);
+  }
+
+  return numArray.reduce((sum, num) => sum + num, 0);
 }
 
 // Test Case
@@ -25,3 +32,12 @@ console.assert(add("1\n2,3") === 6, "Test Failed: '1\\n2,3' should return 6");
 console.assert(add("4\n5\n6") === 15, "Test Failed: '4\\n5\\n6' should return 15");
 console.assert(add("//;\n1;2") === 3, "Test Failed: '//;\\n1;2' should return 3");
 console.assert(add("//|\n4|5|6") === 15, "Test Failed: '//|\\n4|5|6' should return 15");
+
+try {
+  add("1,-2,3,-4");
+} catch (e) {
+  console.assert(
+    e.message === "Negative numbers not allowed: -2,-4",
+    "Test Failed: Negative numbers exception not handled correctly"
+  );
+}
